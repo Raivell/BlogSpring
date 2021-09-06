@@ -16,7 +16,7 @@ import java.util.Optional;
 @Controller
 public class BlogController {
 
-    //создаем переменную которая ссылается на наш репозиторий
+    //создаем переменную которая ссылается на наш репозиторий-интерфейс
     @Autowired
     private PoostRepozitory poostRepozitory;
 
@@ -47,10 +47,13 @@ public class BlogController {
 //@PathVariable() для принятия динамического параметра
     @GetMapping("/blog/{id}")
     public String blogDetails(@PathVariable(value = "id") long id, Model model) {
+        // чтобы не переходить на несуществующие статьи
 if (!poostRepozitory.existsById(id)){
     return "redirect:/blog";
 }
+
         model.addAttribute("title", "Блог");
+//преобразуем в массив
         Optional<Poost> poost = poostRepozitory.findById(id);
         ArrayList<Poost> res = new ArrayList<>();
         poost.ifPresent(res::add);
@@ -70,7 +73,7 @@ if (!poostRepozitory.existsById(id)){
         model.addAttribute("poost", res);
         return "blog-edit";
     }
-
+//редактирование-сохранение
     @PostMapping("/blog/{id}/edit")
     public String blogPostUpdate(@PathVariable(value = "id") long id, @RequestParam String title, @RequestParam String anons,@RequestParam String full_text, Model model) {
         Poost poost = poostRepozitory.findById(id).orElseThrow(null);
@@ -82,7 +85,7 @@ if (!poostRepozitory.existsById(id)){
         poostRepozitory.save(poost);
         return "redirect:/blog";
     }
-
+//удаление
     @PostMapping("/blog/{id}/remove")
     public String blogPostDelete(@PathVariable(value = "id") long id, Model model) {
         Poost poost = poostRepozitory.findById(id).orElseThrow(null);
